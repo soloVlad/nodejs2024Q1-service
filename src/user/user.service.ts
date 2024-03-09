@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 
 import { getCurrentTimestamp } from 'src/utils/date.util';
@@ -16,7 +20,13 @@ export class UserService {
   }
 
   getUserById(id: string): User {
-    return this.users.find((user) => user.id === id);
+    const user = this.users.find((user) => user.id === id);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    return user;
   }
 
   createUser(createUserDto: CreateUserDto): User {
@@ -36,12 +46,19 @@ export class UserService {
   updatePassword(id: string, updatePasswordDto: UpdatePasswordDto): User {
     const user = this.getUserById(id);
 
+    if (user.password !== updatePasswordDto.oldPassword) {
+      throw new ForbiddenException();
+    }
+
     user.password = updatePasswordDto.newPassword;
+    user.version += 1;
+    user.updatedAt = new Date().getTime();
+
     return user;
   }
 
   deleteUser(id: string): void {
-    const found = this.users.find((user) => user.id === id);
+    const found = this.getUserById(id);
     this.users = this.users.filter((user) => user.id !== found.id);
   }
 }

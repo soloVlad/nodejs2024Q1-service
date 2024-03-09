@@ -3,15 +3,18 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
   Param,
+  ParseUUIDPipe,
   Post,
   Put,
 } from '@nestjs/common';
 
 import { UserService } from './user.service';
-import { User } from './user.model';
+import { User, UserWithoutPassword } from './user.model';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/updatePassword.dto';
+import { hidePassword } from 'src/utils/user.util';
 
 @Controller('user')
 export class UserController {
@@ -23,25 +26,31 @@ export class UserController {
   }
 
   @Get('/:id')
-  getUserById(@Param('id') id: string): User {
-    return this.userService.getUserById(id);
+  getUserById(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): UserWithoutPassword {
+    const user = this.userService.getUserById(id);
+    return hidePassword(user);
   }
 
   @Post()
-  createUser(@Body() createUserDto: CreateUserDto): User {
-    return this.userService.createUser(createUserDto);
+  createUser(@Body() createUserDto: CreateUserDto): UserWithoutPassword {
+    const user = this.userService.createUser(createUserDto);
+    return hidePassword(user);
   }
 
   @Put('/:id')
   updatePassword(
-    @Param('id') id: string,
+    @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updatePasswordDto: UpdatePasswordDto,
-  ): User {
-    return this.userService.updatePassword(id, updatePasswordDto);
+  ): UserWithoutPassword {
+    const user = this.userService.updatePassword(id, updatePasswordDto);
+    return hidePassword(user);
   }
 
   @Delete('/:id')
-  deleteUser(@Param('id') id: string): void {
+  @HttpCode(204)
+  deleteUser(@Param('id', new ParseUUIDPipe()) id: string): void {
     return this.userService.deleteUser(id);
   }
 }
