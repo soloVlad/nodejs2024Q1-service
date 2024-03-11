@@ -52,13 +52,22 @@ export class TrackService {
 
   updateAlbumIdForDeletedAlbum(id: string): void {
     this.tracks = this.tracks.map((track) => {
-      console.log(track);
-
       if (track.albumId !== id) return track;
 
       return {
         ...track,
         albumId: null,
+      };
+    });
+  }
+
+  updateArtistIdForDeletedArtist(id: string): void {
+    this.tracks = this.tracks.map((track) => {
+      if (track.artistId !== id) return track;
+
+      return {
+        ...track,
+        artistId: null,
       };
     });
   }

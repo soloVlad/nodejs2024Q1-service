@@ -4,10 +4,17 @@ import { v4 as uuid } from 'uuid';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 import { Artist } from './entities/artist.entity';
+import { TrackService } from 'src/track/track.service';
+import { AlbumService } from 'src/album/album.service';
 
 @Injectable()
 export class ArtistService {
   private artists: Artist[] = [];
+
+  constructor(
+    private readonly trackService: TrackService,
+    private readonly albumService: AlbumService,
+  ) {}
 
   create(createArtistDto: CreateArtistDto): Artist {
     const artist = {
@@ -47,5 +54,8 @@ export class ArtistService {
   remove(id: string): void {
     const found = this.findOne(id);
     this.artists = this.artists.filter((artist) => artist.id !== found.id);
+
+    this.albumService.updateArtistIdForDeletedArtist(id);
+    this.trackService.updateArtistIdForDeletedArtist(id);
   }
 }

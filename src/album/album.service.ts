@@ -52,4 +52,15 @@ export class AlbumService {
     this.albums = this.albums.filter((album) => album.id !== found.id);
     this.trackService.updateAlbumIdForDeletedAlbum(id);
   }
+
+  updateArtistIdForDeletedArtist(id: string): void {
+    this.albums = this.albums.map((album) => {
+      if (album.artistId !== id) return album;
+
+      return {
+        ...album,
+        artistId: null,
+      };
+    });
+  }
 }
