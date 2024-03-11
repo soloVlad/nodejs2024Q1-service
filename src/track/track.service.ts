@@ -49,4 +49,17 @@ export class TrackService {
     const found = this.findOne(id);
     this.tracks = this.tracks.filter((track) => track.id !== found.id);
   }
+
+  updateAlbumIdForDeletedAlbum(id: string): void {
+    this.tracks = this.tracks.map((track) => {
+      console.log(track);
+
+      if (track.albumId !== id) return track;
+
+      return {
+        ...track,
+        albumId: null,
+      };
+    });
+  }
 }
